@@ -33,12 +33,12 @@ enum SINAIS
     DIVISAO,
     
     //Delimitadores
-    ABRE_PAR,
-    FECHA_PAR,
-    ABRE_CHA,
-    FECHA_CHA,
-    ABRE_COL,
-    FECHA_COL,
+    ABRE_PARENTESES,
+    FECHA_PARENTESES,
+    ABRE_CHAVES,
+    FECHA_CHAVES,
+    ABRE_COLCHETES,
+    FECHA_COLCHETES,
     PONTO_VIRGULA,
     VIRGULA,
 

@@ -43,7 +43,7 @@ TOKEN AnaLex(FILE *fd)
                 estado = 1;
 
                 t.cat = SN;
-                t.codigo = ABRE_PAR;
+                t.codigo = ABRE_PARENTESES;
 
                 return t;
             }
@@ -54,15 +54,70 @@ TOKEN AnaLex(FILE *fd)
                 estado = 2;
 
                 t.cat = SN;
-                t.codigo = FECHA_PAR;
+                t.codigo = FECHA_PARENTESES;
 
                 return t;
             }
 
-            if (c == ' ' || c == '\t')
+            else if (c == '[')
+            {
+                // sinal de abre cholchetes
+                estado = 3;
+
+                t.cat = SN;
+                t.codigo = ABRE_COLCHETES;
+
+                return t;
+            }
+
+            else if (c == ']')
+            {
+                // sinal de fecha colchetes
+                estado = 4;
+
+                t.cat = SN;
+                t.codigo = FECHA_COLCHETES;
+
+                return t;
+            }
+
+            else if (c == '{')
+            {
+                // sinal de abre chaves
+                estado = 4;
+                t.cat = SN;
+                t.codigo = ABRE_CHAVES;
+
+                return t;
+            }
+
+            else if (c == '}')
+            {
+                // sinal de fecha chaves
+                estado = 6;
+
+                t.cat = SN;
+                t.codigo = FECHA_CHAVES;
+
+                return t;
+            }
+
+            else if (c == '#')
+            {
+                // Diferente
+                estado = 7;
+
+                t.cat = SN;
+                t.codigo = DIFERENTE;
+
+                return t;
+            }
+
+            else if (c == ' ' || c == '\t')
             {
                 estado = 0;
             }
+
             else if (c >= 'a' && c <= 'z')
             {
                 // inicio de identificador - inicializa lexema
@@ -292,13 +347,33 @@ int main()
                 printf("<SN, ATRIBUICAO> ");
                 break;
 
-            case ABRE_PAR:
+            case ABRE_PARENTESES:
                 printf("<SN, ABRE_PARENTESES> ");
                 break;
 
-            case FECHA_PAR:
+            case FECHA_PARENTESES:
                 printf("<SN, FECHA_PARENTESES> ");
                 break;
+
+            case ABRE_COLCHETES:
+                printf("<SN, ABRE_COLCHETES> ");
+                break;
+
+            case FECHA_COLCHETES:
+                printf("<SN, FECHA_COLCHETES> ");
+                break;
+
+            case ABRE_CHAVES:
+                printf("<SN, ABRE_CHAVES> ");
+                break;
+
+            case FECHA_CHAVES:
+                printf("<SN, FECHA_CHAVES> ");
+                break;
+
+              case DIFERENTE:
+                printf("<SN, DIFERENTE> ");
+                break;    
             }
 
             break;
