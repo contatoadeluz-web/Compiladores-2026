@@ -16,6 +16,19 @@ void error(char msg[])
     exit(1);
 }
 
+int verificaPR(char lexema[TAM_LEXEMA])
+{
+    for (int i = 1; i <= DUP; i++)
+    {
+        if (strcmp(lexema, definicaoPR[i]) == 0)
+        {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
 TOKEN AnaLex(FILE *fd)
 {
     int estado;
@@ -24,6 +37,14 @@ TOKEN AnaLex(FILE *fd)
 
     char digitos[TAM_NUM] = "";
     int tamD = 0;
+
+    // Operadores lógicos
+
+    // Lista de operadores
+    // Tamanho dos operadores
+
+    const enum OPERADORES logicos[] = {AND, OR, NOT};
+    const int qtd_operadores = sizeof(logicos) / sizeof(logicos[0]);
 
     TOKEN t;
 
@@ -36,8 +57,12 @@ TOKEN AnaLex(FILE *fd)
         switch (estado)
         {
         case 0:
+            if (c == ' ' || c == '\t')
+            {
+                estado = 0;
+            }
 
-            if (c == '(')
+            else if (c == '(')
             {
                 // sinal de abre parenteses - monta e devolve token
                 estado = 1;
@@ -115,27 +140,27 @@ TOKEN AnaLex(FILE *fd)
 
             else if (c == '.')
             {
-                // Diferente
                 estado = 8;
 
-                t.cat = SN;
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
             }
 
-            else if (c == '/')
+            else if (c == ',')
             {
                 // sinal de divisao - monta e devolve token
-                estado = 29;
+                estado = 11;
 
-                //t.cat = SN;
-                //t.codigo = DIVISAO;
+                t.cat = SN;
+                t.codigo = VIRGULA;
 
                 return t;
             }
 
-             else if (c == '*')
+            else if (c == '*')
             {
                 // sinal de multiplicacao - monta e devolve token
-                estado = 32;
+                estado = 12;
 
                 t.cat = SN;
                 t.codigo = MULTIPLIC;
@@ -146,7 +171,7 @@ TOKEN AnaLex(FILE *fd)
             else if (c == '+')
             {
                 // sinal de adicao - monta e devolve token
-                estado = 33;
+                estado = 13;
 
                 t.cat = SN;
                 t.codigo = ADICAO;
@@ -157,7 +182,7 @@ TOKEN AnaLex(FILE *fd)
             else if (c == '-')
             {
                 // sinal de subtracao - monta e devolve token
-                estado = 34;
+                estado = 14;
 
                 t.cat = SN;
                 t.codigo = SUBTRACAO;
@@ -168,18 +193,18 @@ TOKEN AnaLex(FILE *fd)
             else if (c == ';')
             {
                 // PONTO e VÍRGULA
-                estado = 35;
+                estado = 15;
 
                 t.cat = SN;
                 t.codigo = PONTO_VIRGULA;
 
                 return t;
             }
-            
+
             else if (c == '=')
             {
                 // sinal de atribuicao - monta e devolve token
-                estado = 52;
+                estado = 42;
 
                 t.cat = SN;
                 t.codigo = ATRIB;
@@ -187,38 +212,10 @@ TOKEN AnaLex(FILE *fd)
                 return t;
             }
 
-            else if (c == ' ' || c == '\t')
-            {
-                estado = 0;
-            }
-
-            else if (c >= 'a' && c <= 'z')
+            else if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
             {
                 // inicio de identificador - inicializa lexema
-                estado = 10000;
-
-                lexema[tamL] = c;
-                lexema[++tamL] = '\0';
-            }
-
-            else if (c >= '0' && c <= '9')
-            {
-                // inicio de constante inteira - inicializa digitos
-                estado = 10;
-
-                digitos[tamD] = c;
-                digitos[++tamD] = '\0';
-            }
-
-            else if (c == ' ' || c == '\t')
-            {
-                estado = 0;
-            }
-
-            else if (c >= 'a' && c <= 'z')
-            {
-                // inicio de identificador - inicializa lexema
-                estado = 10000;
+                estado = 25;
 
                 lexema[tamL] = c;
                 lexema[++tamL] = '\0';
@@ -260,27 +257,34 @@ TOKEN AnaLex(FILE *fd)
             }
             break;
 
-        case 1:
+        case 25:
 
-            if ((c >= 'a' && c <= 'z') ||
-                (c >= '0' && c <= '9') ||
-                (c == '_'))
+            if (((c >= 65 && c <= 90) || (c >= 97 && c <= 122)) || isdigit((unsigned char)c))
             {
-                estado = 1;
+                estado = 25;
 
-                // acumula caracteres lidos em lexema
+                // Acumula caracteres em lexema
                 lexema[tamL] = c;
                 lexema[++tamL] = '\0';
             }
-
             else
             {
-                // transicao OUTRO* do estado 1 do AFD
-                estado = 2;
-
-                // monta token identificador e retorna
+                // Transição para o estado final do identificador
                 ungetc(c, fd);
+                estado = 26;
 
+                // Verifica palavras reservadas
+                int codigoPR = verificaPR(lexema);
+
+                if (codigoPR != 0)
+                {
+                    t.cat = PR;
+                    t.codigo = codigoPR;
+                    strcpy(t.lexema, lexema);
+                    return t;
+                }
+
+                // Se não for palavra reservada, retorna ID
                 t.cat = ID;
                 strcpy(t.lexema, lexema);
 
@@ -288,7 +292,51 @@ TOKEN AnaLex(FILE *fd)
             }
 
             break;
+        case 8:
 
+            if (c >= 'a' && c <= 'z')
+            {
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
+            }
+            else if (c == '.')
+            {
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
+
+                for (int i = 0; i < qtd_operadores; i++)
+                {
+                    if (strcmp(lexema, definicao[i]) == 0)
+                    {
+                        t.cat = OPERADORES;
+                        t.codigo = logicos[i];
+
+                        switch (t.codigo)
+                        {
+                        case AND:
+                            // continua 8
+                            break;
+
+                        case NOT:
+                            estado = 9;
+                            break;
+
+                        case OR:
+                            estado = 10;
+                            break;
+
+                        default:
+                            break;
+                        }
+
+                        return t;
+                    }
+                }
+
+                error("Operador logico invalido!");
+            }
+
+            break;
         case 10:
 
             if (c >= '0' && c <= '9')
@@ -349,6 +397,9 @@ int main()
         case ID:
             printf("<ID, %s> ", tk.lexema);
             break;
+        case PR:
+            printf("<PR, %s> ", tk.lexema);
+            break;
         case CT_INTCON:
             printf("\nINTCON: %d>\n", tk.valInt);
             break;
@@ -364,8 +415,24 @@ int main()
         case CT_COMENTARIO:
 
             break;
-        case SN:
+        case OPERADORES:
+            switch (tk.codigo)
+            {
+            case AND:
+                printf("<OPERADOR LÓGICO, AND> ");
+                break;
 
+            case NOT:
+                printf("<OPERADOR LÓGICO, NOT> ");
+                break;
+
+            case OR:
+                printf("<OPERADOR LÓGICO, OR> ");
+                break;
+            }
+
+            break;
+        case SN:
             switch (tk.codigo)
             {
             case ADICAO:
@@ -415,14 +482,8 @@ int main()
             case DIFERENTE:
                 printf("<SN, DIFERENTE> ");
                 break;
-
-            case PONTO:
-                printf("<SN, PONTO> ");
-                break;
             }
-
             break;
-
         case FIM_EXPR:
 
             printf("<FIM_EXPR>\n");

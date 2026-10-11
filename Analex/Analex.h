@@ -8,6 +8,9 @@
 enum TOKEN_CAT
 {
     ID = 1,        // IDENTIFICADOR
+
+    PR, //PALAVRA RESERVADA
+
     CT_INTCON,     // INTCON
     CT_REALCON,    // REALCON
     CT_CARACCON,   // CHARCCON
@@ -16,6 +19,8 @@ enum TOKEN_CAT
 
     SN, // todos os outros carateres
         // válidos não enquadrados acima, são sinal, por eliminação
+
+    OPERADORES,
 
     // Finaliazação
     FIM_EXPR,
@@ -41,8 +46,7 @@ enum SINAIS
     FECHA_COLCHETES,
     PONTO_VIRGULA,
     VIRGULA,
-    PONTO,
-
+    
     // Operador relacional
     MAIOR,
     MAIOR_OU_IGUAL,
@@ -51,17 +55,89 @@ enum SINAIS
     IGUALDADE,
     DIFERENTE,
 
-    // Operador lógico
 
 }; // Sinais válidos da linguagem
 
-/*enum OPERADORES
-//{
-    AND=1,
+// Operador lógico
+enum OPERADORES
+{   AND,
     OR,
     NOT
-//};
-*/
+};
+
+const char *definicao[] = {
+    ".and.",   // Posição 1 (AND)
+    ".or.",    // Posição 2 (OR)
+    ".not."    // Posição 3 (NOT)
+};
+
+//Palavras reservadas
+
+enum PALAVRAS_RESERVADAS
+{
+    PROG = 1,
+    ENDPROG,
+    VAR,
+    ENDVAR,
+
+    FUNC,
+    ENDFUNC,
+    PROC,
+    ENDPROC,
+    FWD,
+    NOPARAM,
+
+    CHAR,
+    INT,
+    REAL,
+    BOOL,
+
+    IF,
+    ELSE,
+    ENDIF,
+    WHILE,
+    ENDWHILE,
+    RETURN,
+    CALL,
+
+    KEYBOARD,
+    DISPLAY,
+    DUP
+};
+
+const char *definicaoPR[] = {
+    "",          // Posição 0 (não utilizada)
+
+    "prog",      // 1  - PROG
+    "endprog",   // 2  - ENDPROG
+    "var",       // 3  - VAR
+    "endvar",    // 4  - ENDVAR
+
+    "func",      // 5  - FUNC
+    "endfunc",   // 6  - ENDFUNC
+    "proc",      // 7  - PROC
+    "endproc",   // 8  - ENDPROC
+    "fwd",       // 9  - FWD
+    "noparam",   // 10 - NOPARAM
+
+    "char",      // 11 - CHAR
+    "int",       // 12 - INT
+    "real",      // 13 - REAL
+    "bool",      // 14 - BOOL
+
+    "if",        // 15 - IF
+    "else",      // 16 - ELSE
+    "endif",     // 17 - ENDIF
+    "while",     // 18 - WHILE
+    "endwhile",  // 19 - ENDWHILE
+    "return",    // 20 - RETURN
+    "call",      // 21 - CALL
+
+    "keyboard",  // 22 - KEYBOARD
+    "display",   // 23 - DISPLAY
+    "dup"        // 24 - DUP
+};
+
 
 typedef
 
