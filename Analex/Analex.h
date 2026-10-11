@@ -4,20 +4,20 @@
 
 #define TAM_MAX_LEXEMA 31
 
-//Categoria do token
+// Categoria do token
 enum TOKEN_CAT
 {
-    ID = 1,//IDENTIFICADOR
-    CT_INTCON,  //INTCON
-    CT_REALCON,  //REALCON
-    CT_CARACCON,  //CHARCCON
+    ID = 1,        // IDENTIFICADOR
+    CT_INTCON,     // INTCON
+    CT_REALCON,    // REALCON
+    CT_CARACCON,   // CHARCCON
     CT_CADEIACON,  //
-    CT_COMENTARIO, //COMENTÁRO
-    
-    SN, //todos os outros carateres 
-       //válidos não enquadrados acima, são sinal, por eliminação
-    
-    //Finaliazação
+    CT_COMENTARIO, // COMENTÁRO
+
+    SN, // todos os outros carateres
+        // válidos não enquadrados acima, são sinal, por eliminação
+
+    // Finaliazação
     FIM_EXPR,
     FIM_ARQ
 };
@@ -25,14 +25,14 @@ enum TOKEN_CAT
 enum SINAIS
 {
     ATRIB = 1,
-    
-    //Operadores aritiméticos
+
+    // Operadores aritiméticos
     ADICAO,
     SUBTRACAO,
     MULTIPLIC,
     DIVISAO,
-    
-    //Delimitadores
+
+    // Delimitadores
     ABRE_PARENTESES,
     FECHA_PARENTESES,
     ABRE_CHAVES,
@@ -41,8 +41,9 @@ enum SINAIS
     FECHA_COLCHETES,
     PONTO_VIRGULA,
     VIRGULA,
+    PONTO,
 
-    //Operador relacional
+    // Operador relacional
     MAIOR,
     MAIOR_OU_IGUAL,
     MENOR,
@@ -50,11 +51,17 @@ enum SINAIS
     IGUALDADE,
     DIFERENTE,
 
-    //Operador lógico
-    AND,
+    // Operador lógico
+
+}; // Sinais válidos da linguagem
+
+/*enum OPERADORES
+//{
+    AND=1,
     OR,
     NOT
-}; // Sinais válidos da linguagem
+//};
+*/
 
 typedef
 
@@ -71,7 +78,7 @@ typedef
         char lexema[TAM_MAX_LEXEMA]; // cadeia de caracteres que corresponde ao nome do token da cat. ID
 
         int valInt; // valor da constante inteira em tokens da cat. CT_I
-        //int valReal; // valor da constante inteira em tokens da cat. CT_I
+        // int valReal; // valor da constante inteira em tokens da cat. CT_I
     };
 
 } TOKEN; // Tipo TOKEN

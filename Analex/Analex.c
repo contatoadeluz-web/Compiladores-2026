@@ -113,6 +113,80 @@ TOKEN AnaLex(FILE *fd)
                 return t;
             }
 
+            else if (c == '.')
+            {
+                // Diferente
+                estado = 8;
+
+                t.cat = SN;
+            }
+
+            else if (c == '/')
+            {
+                // sinal de divisao - monta e devolve token
+                estado = 29;
+
+                //t.cat = SN;
+                //t.codigo = DIVISAO;
+
+                return t;
+            }
+
+             else if (c == '*')
+            {
+                // sinal de multiplicacao - monta e devolve token
+                estado = 32;
+
+                t.cat = SN;
+                t.codigo = MULTIPLIC;
+
+                return t;
+            }
+
+            else if (c == '+')
+            {
+                // sinal de adicao - monta e devolve token
+                estado = 33;
+
+                t.cat = SN;
+                t.codigo = ADICAO;
+
+                return t;
+            }
+
+            else if (c == '-')
+            {
+                // sinal de subtracao - monta e devolve token
+                estado = 34;
+
+                t.cat = SN;
+                t.codigo = SUBTRACAO;
+
+                return t;
+            }
+
+            else if (c == ';')
+            {
+                // PONTO e VÍRGULA
+                estado = 35;
+
+                t.cat = SN;
+                t.codigo = PONTO_VIRGULA;
+
+                return t;
+            }
+            
+            else if (c == '=')
+            {
+                // sinal de atribuicao - monta e devolve token
+                estado = 52;
+
+                t.cat = SN;
+                t.codigo = ATRIB;
+
+                return t;
+            }
+
             else if (c == ' ' || c == '\t')
             {
                 estado = 0;
@@ -136,59 +210,27 @@ TOKEN AnaLex(FILE *fd)
                 digitos[++tamD] = '\0';
             }
 
-            else if (c == '+')
+            else if (c == ' ' || c == '\t')
             {
-                // sinal de adicao - monta e devolve token
-                estado = 3;
-
-                t.cat = SN;
-                t.codigo = ADICAO;
-
-                return t;
+                estado = 0;
             }
 
-            else if (c == '-')
+            else if (c >= 'a' && c <= 'z')
             {
-                // sinal de subtracao - monta e devolve token
-                estado = 4;
+                // inicio de identificador - inicializa lexema
+                estado = 10000;
 
-                t.cat = SN;
-                t.codigo = SUBTRACAO;
-
-                return t;
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
             }
 
-            else if (c == '*')
+            else if (c >= '0' && c <= '9')
             {
-                // sinal de multiplicacao - monta e devolve token
-                estado = 6;
+                // inicio de constante inteira - inicializa digitos
+                estado = 10;
 
-                t.cat = SN;
-                t.codigo = MULTIPLIC;
-
-                return t;
-            }
-
-            else if (c == '/')
-            {
-                // sinal de divisao - monta e devolve token
-                estado = 5;
-
-                t.cat = SN;
-                t.codigo = DIVISAO;
-
-                return t;
-            }
-
-            else if (c == '=')
-            {
-                // sinal de atribuicao - monta e devolve token
-                estado = 7;
-
-                t.cat = SN;
-                t.codigo = ATRIB;
-
-                return t;
+                digitos[tamD] = c;
+                digitos[++tamD] = '\0';
             }
 
             else if (c == '\n')
@@ -216,7 +258,6 @@ TOKEN AnaLex(FILE *fd)
                 // sem transicao valida no AFD
                 error("Caracter invalido na expressao!");
             }
-
             break;
 
         case 1:
@@ -371,9 +412,13 @@ int main()
                 printf("<SN, FECHA_CHAVES> ");
                 break;
 
-              case DIFERENTE:
+            case DIFERENTE:
                 printf("<SN, DIFERENTE> ");
-                break;    
+                break;
+
+            case PONTO:
+                printf("<SN, PONTO> ");
+                break;
             }
 
             break;
