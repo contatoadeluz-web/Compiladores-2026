@@ -367,6 +367,24 @@ TOKEN AnaLex(FILE *fd)
             }
 
             break;
+        case 22:
+
+            if (c == '/')
+            {
+                estado = 23;
+                t.cat = SN;
+                t.codigo = CT_COMENTARIO;
+                return t;
+            }
+            else
+            {
+                estado = 24;
+                t.cat = SN;
+                t.codigo = DIVISAO;
+                return t;
+            }
+
+            break;
         case 25:
 
             if (((c >= 65 && c <= 90) || (c >= 97 && c <= 122)) || isdigit((unsigned char)c))
@@ -428,14 +446,64 @@ TOKEN AnaLex(FILE *fd)
             break;
 
         case 31:
-
-            //char
+            if (c != '\'' && c != '\n' && c != EOF)
+            {
+                lexema[tamL++] = c;
+                lexema[tamL] = '\0';
+                estado = 32;
+            }
+            else
+            {
+                estado = 34;
+                error("Constante de caractere invalida!");
+            }
             break;
 
-        case 36:
+        case 32:
+            if (c == '\'')
+            {
+                estado = 33;
+                lexema[tamL++] = c;
+                lexema[tamL] = '\0';
 
-            
-            //Caractere
+                t.cat = CT_CARACCON;
+                strcpy(t.lexema, lexema);
+
+                return t;
+            }
+            else
+            {
+                estado = 35;
+                error("Constante de caractere deve conter apenas um caractere!");
+            }
+            break;
+        case 36:
+            if (c != '\'' && c != '\n' && c != EOF)
+            {
+                lexema[tamL++] = c;
+                lexema[tamL] = '\0';
+                estado = 37;
+            }
+            else
+            {
+                error("Constante de caractere invalida!");
+            }
+            break;
+
+        case 37:
+            if (c == '\'')
+            {
+                lexema[tamL++] = c;
+                lexema[tamL] = '\0';
+
+                t.cat = CT_CARACCON;
+                strcpy(t.lexema, lexema);
+                return t;
+            }
+            else
+            {
+                error("Constante de caractere deve conter apenas um caractere!");
+            }
             break;
 
         case 41:
@@ -499,6 +567,7 @@ int main()
 
             break;
         case CT_CARACCON:
+            printf("\nCARACCON: %s>\n", tk.lexema);
 
             break;
         case CT_CADEIACON:
