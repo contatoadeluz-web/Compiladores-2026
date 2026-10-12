@@ -214,6 +214,9 @@ TOKEN AnaLex(FILE *fd)
             else if (c == '/')
             {
                 estado = 22;
+
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
             }
 
             else if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
@@ -232,8 +235,6 @@ TOKEN AnaLex(FILE *fd)
                 // acumula digitos lidos na variavel digitos
                 digitos[tamD] = c;
                 digitos[++tamD] = '\0';
-
-                // return t;
             }
 
             // Char: aspas simples
@@ -368,17 +369,30 @@ TOKEN AnaLex(FILE *fd)
 
             break;
         case 22:
-
             if (c == '/')
             {
-                estado = 23;
-                t.cat = SN;
-                t.codigo = CT_COMENTARIO;
+                // Reconheceu //
+                lexema[tamL++] = c;
+                lexema[tamL] = '\0';
+
+                // Lê até o fim da linha ou do arquivo
+                while ((c = fgetc(fd)) != '\n' && c != EOF)
+                {
+                    if (tamL < TAM_LEXEMA - 1)
+                    {
+                        lexema[tamL++] = c;
+                        lexema[tamL] = '\0';
+                    }
+                }
+
+                t.cat = CT_COMENTARIO;
+                strcpy(t.lexema, lexema);
                 return t;
             }
             else
             {
-                estado = 24;
+                // É apenas uma barra de divisão
+                ungetc(c, fd);
                 t.cat = SN;
                 t.codigo = DIVISAO;
                 return t;
@@ -428,10 +442,14 @@ TOKEN AnaLex(FILE *fd)
                 digitos[tamD] = c;
                 digitos[++tamD] = '\0';
             }
-
+            if (c == '.')
+            {
+                estado = 28;
+                digitos[tamD] = c;
+                digitos[++tamD] = '\0';
+            }
             else
             {
-                // transicao OUTRO* do estado 10 do AFD
                 estado = 29;
 
                 // monta token constante inteira e retorna
@@ -444,7 +462,28 @@ TOKEN AnaLex(FILE *fd)
             }
 
             break;
+        case 28: // Real
 
+            if (c >= '0' && c <= '9')
+            {
+                // acumula digitos lidos na variavel digitos
+                digitos[tamD] = c;
+                digitos[++tamD] = '\0';
+            }
+            else
+            {
+                estado = 30;
+
+                // monta token constante inteira e retorna
+                ungetc(c, fd);
+
+                t.cat = CT_REALCON;
+                strcpy(t.lexema, digitos);
+
+                return t;
+            }
+
+            break;
         case 31:
             if (c != '\'' && c != '\n' && c != EOF)
             {
@@ -565,6 +604,7 @@ int main()
             break;
         case CT_REALCON:
 
+            printf("\nREALCON: %s>\n", tk.lexema);
             break;
         case CT_CARACCON:
             printf("\nCARACCON: %s>\n", tk.lexema);
@@ -574,6 +614,7 @@ int main()
 
             break;
         case CT_COMENTARIO:
+            printf("\nCOMENTÁRIO: %s>\n", tk.lexema);
 
             break;
         case OPERADORES:
