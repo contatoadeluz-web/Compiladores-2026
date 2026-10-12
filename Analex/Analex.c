@@ -240,7 +240,7 @@ TOKEN AnaLex(FILE *fd)
             // Char: aspas simples
             else if (c == '\'')
             {
-                estado = 31;
+                estado = 36;
 
                 lexema[tamL] = c;
                 lexema[++tamL] = '\0';
@@ -249,7 +249,7 @@ TOKEN AnaLex(FILE *fd)
             // String: aspas duplas
             else if (c == '"')
             {
-                estado = 36;
+                estado = 31;
 
                 lexema[tamL] = c;
                 lexema[++tamL] = '\0';
@@ -484,37 +484,53 @@ TOKEN AnaLex(FILE *fd)
             }
 
             break;
-        case 31:
-            if (c != '\'' && c != '\n' && c != EOF)
+
+        case 31: // Lê o conteúdo da cadeia
+
+            if (c == '"')
             {
-                lexema[tamL++] = c;
-                lexema[tamL] = '\0';
+                ungetc(c, fd);
                 estado = 32;
+            }
+            else if (c == '\n' || c == EOF)
+            {   estado = 34;
+                error("Cadeia de caracteres nao foi fechada!");
             }
             else
             {
-                estado = 34;
-                error("Constante de caractere invalida!");
+                if (tamL < TAM_LEXEMA - 1)
+                {
+                    lexema[tamL++] = c;
+                    lexema[tamL] = '\0';
+                }
+                else
+                {
+                    error("Cadeia de caracteres muito longa!");
+                }
+                //estado = 34;
             }
+
             break;
 
-        case 32:
-            if (c == '\'')
+        case 32: // Fecha a cadeia
+
+            if (c == '"')
             {
-                estado = 33;
                 lexema[tamL++] = c;
                 lexema[tamL] = '\0';
 
-                t.cat = CT_CARACCON;
+                t.cat = CT_CADEIACON;
                 strcpy(t.lexema, lexema);
-
+                
+                estado = 33;
+                
                 return t;
             }
             else
-            {
-                estado = 35;
-                error("Constante de caractere deve conter apenas um caractere!");
+            {   estado = 35;
+                error("Cadeia de caracteres invalida!");
             }
+
             break;
         case 36:
             if (c != '\'' && c != '\n' && c != EOF)
@@ -611,6 +627,7 @@ int main()
 
             break;
         case CT_CADEIACON:
+            printf("\nCADEIACON: %s>\n", tk.lexema);
 
             break;
         case CT_COMENTARIO:
