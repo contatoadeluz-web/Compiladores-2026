@@ -201,15 +201,19 @@ TOKEN AnaLex(FILE *fd)
                 return t;
             }
 
-            else if (c == '=')
+            else if (c == '>')
             {
-                // sinal de atribuicao - monta e devolve token
-                estado = 42;
+                estado = 16;
+            }
 
-                t.cat = SN;
-                t.codigo = ATRIB;
+            else if (c == '<')
+            {
+                estado = 19;
+            }
 
-                return t;
+            else if (c == '/')
+            {
+                estado = 22;
             }
 
             else if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
@@ -223,11 +227,37 @@ TOKEN AnaLex(FILE *fd)
 
             else if (c >= '0' && c <= '9')
             {
-                // inicio de constante inteira - inicializa digitos
-                estado = 10;
+                estado = 27;
 
+                // acumula digitos lidos na variavel digitos
                 digitos[tamD] = c;
                 digitos[++tamD] = '\0';
+
+                // return t;
+            }
+
+            // Char: aspas simples
+            else if (c == '\'')
+            {
+                estado = 31;
+
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
+            }
+
+            // String: aspas duplas
+            else if (c == '"')
+            {
+                estado = 36;
+
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
+            }
+
+            else if (c == '=')
+            {
+                // sinal de atribuicao - monta e devolve token
+                estado = 41;
             }
 
             else if (c == '\n')
@@ -255,42 +285,6 @@ TOKEN AnaLex(FILE *fd)
                 // sem transicao valida no AFD
                 error("Caracter invalido na expressao!");
             }
-            break;
-
-        case 25:
-
-            if (((c >= 65 && c <= 90) || (c >= 97 && c <= 122)) || isdigit((unsigned char)c))
-            {
-                estado = 25;
-
-                // Acumula caracteres em lexema
-                lexema[tamL] = c;
-                lexema[++tamL] = '\0';
-            }
-            else
-            {
-                // Transição para o estado final do identificador
-                ungetc(c, fd);
-                estado = 26;
-
-                // Verifica palavras reservadas
-                int codigoPR = verificaPR(lexema);
-
-                if (codigoPR != 0)
-                {
-                    t.cat = PR;
-                    t.codigo = codigoPR;
-                    strcpy(t.lexema, lexema);
-                    return t;
-                }
-
-                // Se não for palavra reservada, retorna ID
-                t.cat = ID;
-                strcpy(t.lexema, lexema);
-
-                return t;
-            }
-
             break;
         case 8:
 
@@ -337,12 +331,81 @@ TOKEN AnaLex(FILE *fd)
             }
 
             break;
-        case 10:
+        case 16:
+
+            if (c == '=')
+            {
+                estado = 18;
+                t.cat = SN;
+                t.codigo = MAIOR_OU_IGUAL;
+                return t;
+            }
+            else
+            {
+                estado = 17;
+                t.cat = SN;
+                t.codigo = MAIOR;
+                return t;
+            }
+
+            break;
+        case 19:
+
+            if (c == '=')
+            {
+                estado = 21;
+                t.cat = SN;
+                t.codigo = MENOR_OU_IGUAL;
+                return t;
+            }
+            else
+            {
+                estado = 20;
+                t.cat = SN;
+                t.codigo = MENOR;
+                return t;
+            }
+
+            break;
+        case 25:
+
+            if (((c >= 65 && c <= 90) || (c >= 97 && c <= 122)) || isdigit((unsigned char)c))
+            {
+
+                // Acumula caracteres em lexema
+                lexema[tamL] = c;
+                lexema[++tamL] = '\0';
+            }
+            else
+            {
+                // Transição para o estado final do identificador
+                ungetc(c, fd);
+                estado = 26;
+
+                // Verifica palavras reservadas
+                int codigoPR = verificaPR(lexema);
+
+                if (codigoPR != 0)
+                {
+                    t.cat = PR;
+                    t.codigo = codigoPR;
+                    strcpy(t.lexema, lexema);
+                    return t;
+                }
+
+                // Se não for palavra reservada, retorna ID
+                t.cat = ID;
+                strcpy(t.lexema, lexema);
+
+                return t;
+            }
+
+            break;
+
+        case 27:
 
             if (c >= '0' && c <= '9')
             {
-                estado = 10;
-
                 // acumula digitos lidos na variavel digitos
                 digitos[tamD] = c;
                 digitos[++tamD] = '\0';
@@ -351,7 +414,7 @@ TOKEN AnaLex(FILE *fd)
             else
             {
                 // transicao OUTRO* do estado 10 do AFD
-                estado = 11;
+                estado = 29;
 
                 // monta token constante inteira e retorna
                 ungetc(c, fd);
@@ -362,6 +425,35 @@ TOKEN AnaLex(FILE *fd)
                 return t;
             }
 
+            break;
+
+        case 31:
+
+            //char
+            break;
+
+        case 36:
+
+            
+            //Caractere
+            break;
+
+        case 41:
+
+            if (c == '=')
+            {
+                estado = 42;
+                t.cat = SN;
+                t.codigo = COMPARACAO;
+                return t;
+            }
+            else
+            {
+                estado = 43;
+                t.cat = SN;
+                t.codigo = ATRIB;
+                return t;
+            }
             break;
         }
     }
@@ -481,6 +573,26 @@ int main()
 
             case DIFERENTE:
                 printf("<SN, DIFERENTE> ");
+                break;
+
+            case COMPARACAO:
+                printf("<SN, COMPARAÇÃO> ");
+                break;
+
+            case MENOR:
+                printf("<SN, MENOR> ");
+                break;
+
+            case MENOR_OU_IGUAL:
+                printf("<SN, MENOR OUR IGUAL> ");
+                break;
+
+            case MAIOR:
+                printf("<SN, MAIOR> ");
+                break;
+
+            case MAIOR_OU_IGUAL:
+                printf("<SN, MAIOR OUR IGUAL> ");
                 break;
             }
             break;

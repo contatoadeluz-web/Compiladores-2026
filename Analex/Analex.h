@@ -55,8 +55,9 @@ enum SINAIS
     IGUALDADE,
     DIFERENTE,
 
-
-}; // Sinais válidos da linguagem
+    //Comparação
+    COMPARACAO
+}; 
 
 // Operador lógico
 enum OPERADORES
